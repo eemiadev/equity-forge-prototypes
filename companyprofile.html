@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Equity Forge - Create Company Wizard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    
+    <!-- React & React Router -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/history@5/umd/history.development.js"></script>
+    <script src="https://unpkg.com/react-router@6.3.0/umd/react-router.development.js"></script>
+    <script src="https://unpkg.com/react-router-dom@6.3.0/umd/react-router-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#36e27b", // Custom Green Theme
+                        "primary-hover": "#2bc168",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#111827", // Gray-900
+                        "surface-light": "#F9FAFB", // Gray-50
+                        "surface-dark": "#1F2937", // Gray-800
+                        "border-light": "#E5E7EB", // Gray-200
+                        "border-dark": "#374151", // Gray-700
+                        "text-main-light": "#111827",
+                        "text-main-dark": "#f9fafb",
+                        "text-secondary-light": "#6b7280",
+                        "text-secondary-dark": "#9ca3af",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        sans: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "9999px", // Rounded-full per theme instructions
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for dark mode consistency */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4b5563; 
+        }
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #36e27b;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #36e27b;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans antialiased flex flex-col min-h-screen">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { createRoot } = ReactDOM;
+        const { MemoryRouter, Routes, Route, Link, useNavigate, useLocation } = ReactRouterDOM;
+
+        // --- Components ---
+
+        const Header = () => {
+            return (
+                <header class="border-b border-border-light dark:border-border-dark bg-white dark:bg-surface-dark sticky top-0 z-50">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between h-16 items-center">
+                            <div class="flex items-center">
+                                <Link to="/" class="flex items-center gap-2">
+                                    <div class="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded-full mr-1"></div> 
+                                    <span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">Equity Forge</span>
+                                </Link>
+                            </div>
+                            <nav class="hidden md:flex space-x-8">
+                                {['Solutions', 'Organizations', 'Jobs', 'Resources'].map((item) => (
+                                    <div key={item} class="relative group cursor-pointer">
+                                        <div class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors">
+                                            {item} <span class="material-icons text-sm ml-1">expand_more</span>
+                                        </div>
+                                    </div>
+                                ))}
+                                <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors" href="#">About</a>
+                            </nav>
+                            <div class="flex items-center">
+                                <div class="flex items-center space-x-2 cursor-pointer">
+                                    <img alt="Alex Profile" class="h-8 w-8 rounded-full border border-gray-200 dark:border-gray-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5Fx2dGGEdmjqPgm_AVR3Qxf7FMqHLExLwvujo92TE57CCPTo8aZdj5D7IWLg3mUU-7d_zPVbnIuVqTFIuYPYJsYFN3-WoV18tGMZ0-UwgC8cci4a8EhNr_JEkkCEuo_lEy5ALU0ZWKv6A1QKMzrepZt6dtbv278x4d8EWL3rCq6wKdE8WRUxyGLUmU_eVVyOSPZh6w-FH7RYIPSkduhoopNhzJha0_QCg4DPUCpEps7UHshuYsP9bJXZyZqdbUf0Yi2kSc2gm-A"/>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:inline">Alex</span>
+                                    <span class="material-icons text-sm text-gray-500">expand_more</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            );
+        };
+
+        const Footer = () => {
+            return (
+                <footer class="bg-white dark:bg-surface-dark border-t border-border-light dark:border-border-dark pt-12 pb-8 mt-auto">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Company</h3>
+                                <ul class="space-y-3">
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">About Us</a></li>
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Careers</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Support</h3>
+                                <ul class="space-y-3">
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Contact Us</a></li>
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Privacy</a></li>
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Terms</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Resources</h3>
+                                <ul class="space-y-3">
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Startup Directory</a></li>
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Nonprofit Directory</a></li>
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Dynamic Equity 101</a></li>
+                                    <li><a class="text-sm text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary" href="#">Case Studies</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">Newsletter</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Stay updated with the latest in equity management.</p>
+                                <div class="flex gap-2 flex-col sm:flex-row">
+                                    <input class="flex-1 min-w-0 px-4 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full focus:ring-primary focus:border-primary" placeholder="Your email" type="email"/>
+                                    <button class="bg-primary hover:bg-primary-hover text-white px-4 py-2 text-sm font-medium rounded-full transition-colors">
+                                        Subscribe
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-200 dark:border-gray-700 pt-8 text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">© 2025 Equity Forge. All rights reserved.</p>
+                        </div>
+                    </div>
+                </footer>
+            );
+        };
+
+        const Stepper = ({ currentStep }) => {
+            const steps = [
+                { id: 1, label: "Basic Info", path: "/" },
+                { id: 2, label: "Company Details", path: "/details" },
+                { id: 3, label: "Contact Info", path: "/contact" },
+                { id: 4, label: "Admin Settings", path: "/admin" }
+            ];
+
+            return (
+                <div class="mb-12">
+                    <div class="relative">
+                        <div aria-hidden="true" class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                        </div>
+                        <div class="relative flex justify-between max-w-3xl mx-auto">
+                            {steps.map((step) => {
+                                const isCompleted = step.id < currentStep;
+                                const isCurrent = step.id === currentStep;
+                                
+                                return (
+                                    <div key={step.id} class="group flex flex-col items-center">
+                                        {isCompleted ? (
+                                            <span class="h-8 w-8 rounded-full bg-primary flex items-center justify-center ring-8 ring-background-light dark:ring-background-dark z-10">
+                                                <span class="material-icons-outlined text-white text-base">check</span>
+                                            </span>
+                                        ) : isCurrent ? (
+                                            <span class="flex items-center justify-center w-8 h-8 bg-blue-50 dark:bg-blue-900/30 border-2 border-primary rounded-full z-10 ring-8 ring-background-light dark:ring-background-dark">
+                                                <span class="text-primary font-semibold text-sm">{step.id}</span>
+                                            </span>
+                                        ) : (
+                                            <span class="flex items-center justify-center w-8 h-8 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full z-10 ring-8 ring-background-light dark:ring-background-dark">
+                                                <span class="text-gray-500 dark:text-gray-400 font-medium text-sm">{step.id}</span>
+                                            </span>
+                                        )}
+                                        <span class={`mt-2 text-xs font-medium ${isCurrent || isCompleted ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`}>
+                                            {step.label}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const NavButtons = ({ backPath, nextPath, onNext, nextLabel = "Next" }) => {
+            const navigate = useNavigate();
+
+            return (
+                <div class="flex justify-between items-center mt-8 mb-8">
+                    {backPath ? (
+                        <Link to={backPath} class="inline-flex items-center px-4 py-2 border border-border-light dark:border-border-dark shadow-sm text-sm font-medium rounded-full text-text-primary-light dark:text-text-primary-dark bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+                            <span class="material-icons-outlined text-base mr-2">arrow_back</span>
+                            Previous
+                        </Link>
+                    ) : (
+                        <div></div> // Spacer
+                    )}
+
+                    <button 
+                        type="button"
+                        onClick={onNext ? onNext : () => navigate(nextPath)}
+                        class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                    >
+                        {nextLabel}
+                        {nextLabel === "Next" && <span class="material-icons text-base ml-2">arrow_forward</span>}
+                    </button>
+                </div>
+            );
+        };
+
+        const CustomSelect = ({ label, value, onChange, options, placeholder, id }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const wrapperRef = useRef(null);
+
+            useEffect(() => {
+                function handleClickOutside(event) {
+                    if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                        setIsOpen(false);
+                    }
+                }
+                document.addEventListener("mousedown", handleClickOutside);
+                return () => {
+                    document.removeEventListener("mousedown", handleClickOutside);
+                };
+            }, [wrapperRef]);
+
+            const handleSelect = (option) => {
+                onChange(option);
+                setIsOpen(false);
+            };
+
+            return (
+                <div class="relative" ref={wrapperRef}>
+                    {label && <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2" htmlFor={id}>{label}</label>}
+                    <button
+                        type="button"
+                        onClick={() => setIsOpen(!isOpen)}
+                        class="relative w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full py-3 px-4 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm"
+                    >
+                        <span class={`block truncate ${!value ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+                            {value || placeholder}
+                        </span>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <span class="material-icons-outlined text-gray-500">expand_more</span>
+                        </span>
+                    </button>
+
+                    {isOpen && (
+                        <div class="absolute z-20 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-xl py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm border border-gray-200 dark:border-gray-700">
+                            {options.map((option, index) => (
+                                <div
+                                    key={index}
+                                    class={`cursor-pointer select-none relative py-2 pl-4 pr-9 hover:bg-gray-100 dark:hover:bg-gray-700 ${value === option ? 'text-primary font-medium' : 'text-gray-900 dark:text-gray-200'}`}
+                                    onClick={() => handleSelect(option)}
+                                >
+                                    <span class="block truncate">{option}</span>
+                                    {value === option && (
+                                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-primary">
+                                            <span class="material-icons text-sm">check</span>
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- Page Components ---
+
+        // Screen 4: Basic Info (Step 1)
+        const BasicInfo = ({ formData, updateFormData }) => {
+            const fileInputRef = useRef(null);
+
+            const handleFileChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        updateFormData("logoPreview", reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+                    <div class="mb-8">
+                        <Link to="/" class="inline-flex items-center text-sm font-medium text-primary hover:text-primary-hover">
+                            <span class="material-icons text-base mr-1">arrow_back</span>
+                            Back
+                        </Link>
+                    </div>
+                    <div class="mb-10">
+                        <h1 class="text-3xl font-bold text-text-main-light dark:text-white mb-2">Create Company Page</h1>
+                        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">Tell us about your company</p>
+                    </div>
+
+                    <Stepper currentStep={1} />
+
+                    <div class="mb-8">
+                        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4">* indicates required field</p>
+                        <div class="bg-white dark:bg-gray-800 border border-border-light dark:border-border-dark rounded-xl p-6 sm:p-8 space-y-6 shadow-sm">
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main-light dark:text-white mb-2" htmlFor="company-name">Name*</label>
+                                <input 
+                                    value={formData.companyName}
+                                    onChange={(e) => updateFormData('companyName', e.target.value)}
+                                    class="block w-full rounded-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder-gray-400 dark:placeholder-gray-500 py-3 px-4" id="company-name" placeholder="Enter organization name" type="text"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main-light dark:text-white mb-2" htmlFor="tagline">Tagline*</label>
+                                <input 
+                                    value={formData.tagline}
+                                    onChange={(e) => updateFormData('tagline', e.target.value)}
+                                    class="block w-full rounded-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder-gray-400 dark:placeholder-gray-500 py-3 px-4" id="tagline" placeholder="e.g. Accelerate your team formation..." type="text"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main-light dark:text-white mb-2" htmlFor="description">Description*</label>
+                                <textarea 
+                                    value={formData.description}
+                                    onChange={(e) => updateFormData('description', e.target.value)}
+                                    class="block w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary focus:ring-primary sm:text-sm placeholder-gray-400 dark:placeholder-gray-500 py-3 px-4" id="description" placeholder="Describe your organization..." rows="4"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-main-light dark:text-white mb-2">Logo</label>
+                                <div class="flex items-center space-x-4">
+                                    <div class="h-24 w-24 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center border border-gray-200 dark:border-gray-600 overflow-hidden relative">
+                                        {formData.logoPreview ? (
+                                            <img src={formData.logoPreview} alt="Logo Preview" class="w-full h-full object-cover" />
+                                        ) : (
+                                            <span class="material-icons text-gray-400 dark:text-gray-500 text-2xl">image</span>
+                                        )}
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef} 
+                                        onChange={handleFileChange} 
+                                        className="hidden" 
+                                        accept="image/*" 
+                                    />
+                                    <button 
+                                        onClick={() => fileInputRef.current.click()}
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-full text-text-main-light dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors" type="button">
+                                        <span class="material-icons text-base mr-2">upload</span>
+                                        Upload file
+                                    </button>
+                                </div>
+                                <p class="mt-2 text-sm text-text-secondary-light dark:text-text-secondary-dark">300 × 300px recommended. JPGs, JPEGs, and PNGs supported.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <NavButtons nextPath="/details" />
+                </div>
+            );
+        };
+
+        // Screen 2: Company Details (Step 2)
+        const CompanyDetails = ({ formData, updateFormData }) => {
+            return (
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+                    <div class="mb-6">
+                        <Link to="/" class="inline-flex items-center text-primary hover:text-primary-hover font-medium text-sm">
+                            <span class="material-icons-outlined text-sm mr-1">arrow_back</span>
+                            Back
+                        </Link>
+                    </div>
+                    <div class="mb-10">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Company Page</h1>
+                        <p class="text-lg text-gray-600 dark:text-gray-400">Help us understand your company better</p>
+                    </div>
+
+                    <Stepper currentStep={2} />
+
+                    <div class="mt-16 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-8">
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">* indicates required field</p>
+                        <form action="#" class="space-y-6">
+                            <CustomSelect
+                                id="org-type"
+                                label="Organization type*"
+                                value={formData.orgType}
+                                onChange={(val) => updateFormData('orgType', val)}
+                                placeholder="Select type"
+                                options={["Public Company", "Private Company", "Non-Profit", "Educational Institution"]}
+                            />
+                            <div class="flex items-center space-x-3 py-2">
+                                <span class="text-sm font-medium text-gray-900 dark:text-gray-200">This is a startup</span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input 
+                                        checked={formData.isStartup}
+                                        onChange={(e) => updateFormData('isStartup', e.target.checked)}
+                                        class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300 dark:border-gray-500" id="toggle" name="toggle" type="checkbox"/>
+                                    <label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer" htmlFor="toggle"></label>
+                                </div>
+                            </div>
+                            <CustomSelect
+                                id="founded-year"
+                                label="Founded year"
+                                value={formData.foundedYear}
+                                onChange={(val) => updateFormData('foundedYear', val)}
+                                placeholder="Select year"
+                                options={["2024", "2023", "2022", "2021", "Before 2021"]}
+                            />
+                            <CustomSelect
+                                id="industry"
+                                label="Industry*"
+                                value={formData.industry}
+                                onChange={(val) => updateFormData('industry', val)}
+                                placeholder="Select industry"
+                                options={["Technology", "Finance", "Healthcare", "Education", "Retail"]}
+                            />
+                            <CustomSelect
+                                id="size"
+                                label="Size*"
+                                value={formData.size}
+                                onChange={(val) => updateFormData('size', val)}
+                                placeholder="Select organization size"
+                                options={["1-10 employees", "11-50 employees", "51-200 employees", "201-500 employees", "501+ employees"]}
+                            />
+                            <div>
+                                <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2" htmlFor="location">Location*</label>
+                                <input 
+                                    value={formData.location}
+                                    onChange={(e) => updateFormData('location', e.target.value)}
+                                    class="block w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm focus:border-primary focus:ring-primary py-3 px-4 sm:text-sm placeholder-gray-400" id="location" placeholder="Enter organization location" type="text"/>
+                            </div>
+                        </form>
+                    </div>
+                    <NavButtons backPath="/" nextPath="/contact" />
+                </div>
+            );
+        };
+
+        // Screen 3: Contact Info (Step 3)
+        const ContactInfo = ({ formData, updateFormData }) => {
+            return (
+                <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 flex-grow">
+                    <Link to="/details" class="inline-flex items-center text-primary hover:text-primary-hover mb-8 text-sm font-medium transition-colors">
+                        <span class="material-icons text-sm mr-1">arrow_back</span>
+                        Back
+                    </Link>
+                    <div class="mb-10">
+                        <h1 class="text-3xl font-bold text-text-light dark:text-text-dark mb-2 tracking-tight">Create Company Page</h1>
+                        <p class="text-lg text-text-muted-light dark:text-text-muted-dark">Where can people reach your company?</p>
+                    </div>
+
+                    <Stepper currentStep={3} />
+
+                    <div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-6 sm:p-8 shadow-sm">
+                        <p class="text-sm text-text-muted-light dark:text-text-muted-dark mb-6">* indicates required field</p>
+                        <form action="#" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2" htmlFor="email">Email*</label>
+                                <input 
+                                    value={formData.email}
+                                    onChange={(e) => updateFormData('email', e.target.value)}
+                                    class="w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary shadow-sm text-sm py-2.5 px-4 placeholder-gray-400 dark:placeholder-gray-500 transition-colors" id="email" name="email" placeholder="example@email.com" type="email"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2" htmlFor="contactLocation">Location*</label>
+                                <div class="relative">
+                                    <input 
+                                        value={formData.contactLocation}
+                                        onChange={(e) => updateFormData('contactLocation', e.target.value)}
+                                        class="w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary shadow-sm text-sm py-2.5 px-4 placeholder-gray-400 dark:placeholder-gray-500 transition-colors pr-10" id="contactLocation" name="contactLocation" placeholder="e.g. San Francisco, CA" type="text"/>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <span class="material-icons text-gray-400 dark:text-gray-500 text-lg">expand_more</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2" htmlFor="phone">Phone</label>
+                                <input 
+                                    value={formData.phone}
+                                    onChange={(e) => updateFormData('phone', e.target.value)}
+                                    class="w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary shadow-sm text-sm py-2.5 px-4 placeholder-gray-400 dark:placeholder-gray-500 transition-colors" id="phone" name="phone" placeholder="1 (123) 456-7890" type="tel"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2" htmlFor="website">Website</label>
+                                <input 
+                                    value={formData.website}
+                                    onChange={(e) => updateFormData('website', e.target.value)}
+                                    class="w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary shadow-sm text-sm py-2.5 px-4 placeholder-gray-400 dark:placeholder-gray-500 transition-colors" id="website" name="website" placeholder="https://yourcompany.com" type="url"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2" htmlFor="instagram">Instagram</label>
+                                <input 
+                                    value={formData.instagram}
+                                    onChange={(e) => updateFormData('instagram', e.target.value)}
+                                    class="w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary shadow-sm text-sm py-2.5 px-4 placeholder-gray-400 dark:placeholder-gray-500 transition-colors" id="instagram" name="instagram" placeholder="https://instagram.com/yourcompany" type="url"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2" htmlFor="x_twitter">X</label>
+                                <input 
+                                    value={formData.x_twitter}
+                                    onChange={(e) => updateFormData('x_twitter', e.target.value)}
+                                    class="w-full rounded-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary shadow-sm text-sm py-2.5 px-4 placeholder-gray-400 dark:placeholder-gray-500 transition-colors" id="x_twitter" name="x_twitter" placeholder="https://x.com/yourcompany" type="url"/>
+                            </div>
+                        </form>
+                    </div>
+                    <NavButtons backPath="/details" nextPath="/admin" />
+                </div>
+            );
+        };
+
+        // Screen 5: Admin Settings (Step 4)
+        const AdminSettings = ({ formData, updateFormData }) => {
+            return (
+                <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 flex-grow">
+                    <div class="mb-8">
+                        <Link to="/contact" class="inline-flex items-center text-primary hover:text-primary-hover font-medium text-sm transition-colors">
+                            <span class="material-icons-outlined text-base mr-1">arrow_back</span>
+                            Back
+                        </Link>
+                    </div>
+                    <div class="mb-10">
+                        <h1 class="text-3xl sm:text-4xl font-bold text-text-primary-light dark:text-text-primary-dark mb-2">Create Company Page</h1>
+                        <p class="text-lg text-text-secondary-light dark:text-text-secondary-dark">Control who manages this page?</p>
+                    </div>
+
+                    <Stepper currentStep={4} />
+
+                    <div class="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-8 shadow-sm">
+                        <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-6">* indicates required field</p>
+                        <form action="#" class="space-y-8">
+                            <div>
+                                <label class="block text-base font-semibold text-text-primary-light dark:text-text-primary-dark mb-4">
+                                    Who can manage this page?*
+                                </label>
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <input 
+                                            checked={formData.managePermission === 'only-me'}
+                                            onChange={() => updateFormData('managePermission', 'only-me')}
+                                            class="focus:ring-primary h-5 w-5 text-primary border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" id="manage-only-me" name="manage-permission" type="radio"/>
+                                        <label class="ml-3 block text-sm font-medium text-text-primary-light dark:text-text-primary-dark" htmlFor="manage-only-me">
+                                            Only me (you can always change this later in settings)
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input 
+                                            checked={formData.managePermission === 'manage-admins'}
+                                            onChange={() => updateFormData('managePermission', 'manage-admins')}
+                                            class="focus:ring-primary h-5 w-5 text-primary border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" id="manage-admins" name="manage-permission" type="radio"/>
+                                        <label class="ml-3 block text-sm font-medium text-text-primary-light dark:text-text-primary-dark" htmlFor="manage-admins">
+                                            Me and additional admins
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-border-light dark:border-border-dark">
+                                <label class="block text-base font-semibold text-text-primary-light dark:text-text-primary-dark mb-4">
+                                    Terms and conditions*
+                                </label>
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input 
+                                            checked={formData.termsAccepted}
+                                            onChange={(e) => updateFormData('termsAccepted', e.target.checked)}
+                                            class="focus:ring-primary h-5 w-5 text-primary border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700" id="terms" name="terms" type="checkbox"/>
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label class="font-medium text-text-primary-light dark:text-text-primary-dark" htmlFor="terms">
+                                            I confirm that I and any admins appoint are authorized representatives of this organization. We have the right to create and manage this company page and post job listings on its behalf.
+                                        </label>
+                                        <p class="text-text-secondary-light dark:text-text-secondary-dark mt-1">Read our full <a class="text-primary hover:text-blue-600 dark:hover:text-blue-400 font-medium" href="#">Terms and Conditions</a>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <NavButtons backPath="/contact" nextPath="/success" nextLabel="Create" />
+                </div>
+            );
+        };
+
+        // Screen 1: Success Page (Complete)
+        const SuccessPage = () => {
+            return (
+                <div class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+                    <div class="max-w-3xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Company Page</h1>
+                            <p class="text-lg text-gray-600 dark:text-gray-400">Complete!</p>
+                        </div>
+                        <div class="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-12">
+                            <div class="flex">
+                                <div class="flex-1">
+                                    <h3 class="text-md font-bold text-green-800 dark:text-green-300 mb-1">Page created!</h3>
+                                    <p class="text-green-700 dark:text-green-400 text-sm">Your company page was successfully created.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-center gap-4">
+                            <button class="px-6 py-2.5 border border-border-light dark:border-border-dark bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 dark:focus:ring-gray-700">
+                                Public view
+                            </button>
+                            <Link to="/" class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-full font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary text-center">
+                                Create jobs
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [formData, setFormData] = useState({
+                // Basic Info
+                companyName: "",
+                tagline: "",
+                description: "",
+                logoPreview: null,
+                // Details
+                orgType: "",
+                isStartup: false,
+                foundedYear: "",
+                industry: "",
+                size: "",
+                location: "",
+                // Contact
+                email: "",
+                contactLocation: "",
+                phone: "",
+                website: "",
+                instagram: "",
+                x_twitter: "",
+                // Admin
+                managePermission: "only-me",
+                termsAccepted: false
+            });
+
+            const updateFormData = (key, value) => {
+                setFormData(prev => ({ ...prev, [key]: value }));
+            };
+
+            return (
+                <MemoryRouter>
+                    <div className="flex flex-col min-h-screen">
+                        <Header />
+                        <Routes>
+                            <Route path="/" element={<BasicInfo formData={formData} updateFormData={updateFormData} />} />
+                            <Route path="/details" element={<CompanyDetails formData={formData} updateFormData={updateFormData} />} />
+                            <Route path="/contact" element={<ContactInfo formData={formData} updateFormData={updateFormData} />} />
+                            <Route path="/admin" element={<AdminSettings formData={formData} updateFormData={updateFormData} />} />
+                            <Route path="/success" element={<SuccessPage />} />
+                        </Routes>
+                        <Footer />
+                    </div>
+                </MemoryRouter>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
