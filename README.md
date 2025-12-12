@@ -1,2 +1,2 @@
-# equity-forge-demos
+# equity-forge-prototypes
 Prototypes for testing
